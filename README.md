@@ -26,8 +26,8 @@ having *heard* the other languages, and that is what this repository gives it.
 | **all** | **2,196** | **2 h 31 min** |
 
 The new languages were read by the same Suno vocal profile from scripts in
-`corpus/`, cut into clips and checked here. Next: train from the epoch-702
-voice with all eight languages in the mix.
+`corpus/`, cut into clips and checked here. Training started 2026-10-12 from the
+epoch-702 voice with all eight languages in the mix.
 
 ## The English, re-cut
 
@@ -120,6 +120,36 @@ English is never touched. Every symbol used was already in the voice's table.
 ```sh
 uv run python tools/polyphon.py --check tools/polyphon_cases.tsv
 ```
+
+## Training
+
+    tools/train-polyglot.sh new       start, warm-started from the rebuilt epoch-702 voice
+    tools/train-polyglot.sh resume    continue from the run's last.ckpt
+
+`tools/train.py` is Piper's trainer with what 1.8.0 needs on this Mac — the
+monotonic alignment core its wheel ships without (provided in numba), the
+PosixPath allowance old checkpoints need, the val_mos callback that crashes
+Lightning 2.6 dropped — and two guards: `new` refuses a run folder that
+already holds checkpoints, and `resume` neutralises the warm start every
+checkpoint carries, which would otherwise copy the base voice over the
+restored weights. The warm start copies all 784 weights, none skipped.
+
+On the M1 at batch 8 an epoch of 2,152 clips takes about 20 minutes. The run
+starts under `caffeinate` and `nohup`, detached, logging to
+`work/runs/polyglot.log`.
+
+To listen while it trains:
+
+```sh
+uv run python tools/checkin.py work/runs/polyglot/lightning_logs/version_0/checkpoints/last.ckpt work/runs/checkin/epoch-N
+uv run python tools/checkin_score.py work/runs/checkin/epoch-*
+```
+
+The same sentence in every language, noise off, from any checkpoint. The
+score is how much Parakeet recovers — a trend to say which languages moved,
+not a verdict. Before training:
+
+    en 100%   es 75%   de 73%   it 68%   hu 51%   fr 40%   pl 35%   nl 21%
 
 ## The checkpoint
 
