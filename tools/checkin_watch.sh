@@ -3,6 +3,8 @@
 # work/runs/checkin/<epoch>/ and work/runs/checkin/scores.txt. Prints an
 # ALERT line when English falls under 95% or any language drops more than
 # 10 points below its best so far -- the only lines worth interrupting for.
+# The one-word "Breathe in." is scored but never alerts: Parakeet hears it
+# as "Breathing." on and off, while the same words in the full sentence pass.
 #
 #   tools/checkin_watch.sh [RUN_DIR]
 set -uo pipefail
@@ -23,6 +25,8 @@ import re, sys
 rows = [dict(re.findall(r"(\S+) (\d+)%", l)) for l in open(sys.argv[1]) if l.strip()]
 *prev, last = rows
 for k, v in last.items():
+    if k == "en-short":
+        continue
     v = int(v); best = max([int(r[k]) for r in prev if k in r] or [v])
     if (k == "en" and v < 95) or v < best - 10:
         print(f"ALERT {k} {v}% (best so far {best}%)", flush=True)
