@@ -11,7 +11,7 @@ dependencies = [
   "onnx",
   "onnxruntime",
   "parakeet-mlx==0.5.3",
-  "piper-tts==1.8.0",
+  "piper-tts[train]==1.8.0",
   "torch",
 ]
 
