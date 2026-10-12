@@ -49,7 +49,7 @@ MAX_CLIP = 12.0
 JOIN_PAUSE = 0.45
 SLACK = 0.4
 TARGET_RMS = -23.5
-KEEP_SCORE = {"pl": 0.85, "hu": 0.70, "de": 0.80, "nl": 0.80, "fr": 0.80, "es": 0.80, "it": 0.80}  # Parakeet's Hungarian is weaker
+KEEP_SCORE = {"en": 0.85, "pl": 0.85, "hu": 0.70, "de": 0.80, "nl": 0.80, "fr": 0.80, "es": 0.80, "it": 0.80}  # Parakeet's Hungarian is weaker
 
 
 def load_mono(path: Path) -> np.ndarray:
@@ -300,7 +300,8 @@ def main(lang, script_dir, asr_dir, stems_dir, out_dir) -> None:
     for asr in sorted(Path(asr_dir).glob("*.json")):
         batch = batch_of(asr)
         lines = script_lines(Path(script_dir) / f"batch-{batch:02d}.suno.txt")
-        a = load_mono(Path(stems_dir) / f"{asr.stem} (Lead Vocal).wav")
+        stem = Path(stems_dir) / f"{asr.stem} (Lead Vocal).wav"
+        a = load_mono(stem if stem.exists() else Path(stems_dir) / f"{asr.stem}.wav")
         env = envelope(a)
         spans = line_spans(lines, asr_words(asr, lang))
         cuts = bounds(spans, env, len(a) / RATE)

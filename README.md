@@ -17,16 +17,37 @@ having *heard* the other languages, and that is what this repository gives it.
 |---|---|---|
 | Polish | 386 | 23.6 |
 | Hungarian | 287 | 21.8 |
-| Spanish | 274 | 18.8 |
+| English | 223 | 21.4 |
+| Spanish | 273 | 18.7 |
 | German | 258 | 17.2 |
 | Italian | 266 | 16.7 |
-| French | 261 | 16.3 |
+| French | 259 | 16.2 |
 | Dutch | 244 | 15.4 |
-| English | 540 | 42 — its old tail trim must be redone first |
+| **all** | **2,196** | **2 h 31 min** |
 
 The new languages were read by the same Suno vocal profile from scripts in
-`corpus/`, cut into clips and checked here. Next: redo the English trim, then
-train from the epoch-702 voice with all eight languages in the mix.
+`corpus/`, cut into clips and checked here. Next: train from the epoch-702
+voice with all eight languages in the mix.
+
+## The English, re-cut
+
+The English the voice already speaks was re-cut from its 70 source blocks by
+the same pipeline, rather than patching the old clips' ends. That pass found
+three things wrong with the corpus the voice was trained on:
+
+- **The fragment.** 55 of the old 540 clips end with the next line's first
+  sound after a short gap (`tools/tail_check.py`); none of the new ones in
+  training do — the check is now part of selection for every language.
+- **A drone.** 27 blocks were judged "original, nothing to remove" and used
+  unseparated. Their pauses sit at −26 dB against −73 dB in the separated
+  blocks: a steady 65 Hz tone (a low C, the old prompt's "soft low end") with
+  89–98% of the pause energy under 150 Hz, running under the words too.
+  Filtering cannot take it out without taking the voice's own low end with it,
+  so those blocks are left out (`--bed`).
+- **Labels from an old transcript.** The clip texts were a speech recogniser's,
+  not a script: *Braden 2 34 hold 2 34 out* for a counted breath. Parakeet now
+  has to agree with every label, and labels with figures are left out, since
+  "2 34" doesn't say how it was spoken.
 
 ## What the first test showed
 
@@ -67,6 +88,7 @@ Polish take however the prompt forbade it; the stems were clean, with pauses at
                           a lenient transcript check; it cannot pass this one
     voicing.py            how much of each clip is voiced rather than breathed
     select_clips.py       the training list, and why each clip left out was
+    tail_check.py         clips ending in the next line's first sound
     review_page.py        a local listening page for what only a native ear
                           can judge
     build_ids.py          every training line through polyphon, into the
@@ -129,9 +151,6 @@ resumed.
 
 ## Carried over, still open
 
-- The English corpus's corrected tail trim (`08-trimmed`) was lost with the
-  Deck. Without it the voice relearns the fragment it used to add after short
-  sentences.
 - Piper's LR scheduler never steps (`automatic_optimization = False`); the old
   run sat at a constant 2e-4 / 1e-4.
 - Piper's `trim_silence` would strip the padding these clips keep on purpose.

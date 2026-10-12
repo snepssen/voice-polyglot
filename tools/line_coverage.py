@@ -7,7 +7,9 @@ match so an ASR misspelling still counts) and reports, per take:
   - stretches of speech that match no script line (improvised, repeated,
     or sung filler) with their times, so they can be cut
 
-    python line_coverage.py SCRIPT_DIR ASR_DIR [--json OUT.json]
+    python line_coverage.py SCRIPT_DIR ASR_DIR [OUT.json] [LANG]
+
+LANG defaults to SCRIPT_DIR's folder name (corpus/pl -> pl).
 
 SCRIPT_DIR holds batch-NN.suno.txt; ASR_DIR holds <take>.json from
 transcribe_takes.py, matched to scripts by the batch number in the name.
@@ -138,10 +140,11 @@ def check(script: Path, asr: Path, lang: str | None = None) -> dict:
             "heard": sum(heard), "lines": per_line, "extras": extras}
 
 
-def main(script_dir: str, asr_dir: str, out: str | None = None) -> None:
+def main(script_dir: str, asr_dir: str, out: str | None = None, lang: str | None = None) -> None:
+    lang = lang or Path(script_dir).name
     reports = []
     for asr in sorted(Path(asr_dir).glob("*.json")):
-        r = check(Path(script_dir) / f"batch-{batch_of(asr):02d}.suno.txt", asr, Path(script_dir).name)
+        r = check(Path(script_dir) / f"batch-{batch_of(asr):02d}.suno.txt", asr, lang)
         reports.append(r)
         missing = [l for l in r["lines"] if l["heard"] / l["words"] < 0.5]
         partial = [l for l in r["lines"] if 0.5 <= l["heard"] / l["words"] < 0.8]

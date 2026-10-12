@@ -5,6 +5,9 @@
 Writes DATASET_DIR/train.csv (id|text) and prints what was left out, by
 reason. A clip is left out when:
   edge      it starts or ends in sound (a cut with nowhere quiet to go)
+  tail      it ends in a short burst after a gap -- the next line's first
+            sound, the fault that taught the old voice to add a fragment
+            after short sentences (tail_check.py)
   length    its speech is far longer or shorter than its text AND Parakeet
             heard a different number of words -- a swallowed neighbour or a
             lost half (a line Suno merely read slowly keeps its word count)
@@ -15,6 +18,11 @@ reason. A clip is left out when:
   neighbour it sits beside a script line that could not be cut, which is
             where audio leaks between clips (Hungarian batch 1's garden)
   dropped   a native listener dropped it
+  bed       its take has music or a drone under the voice (--bed FILE lists
+            the takes); the old English corpus used 27 blocks unseparated
+  digits    its text has figures, which don't say how they were spoken
+            ("2 34" is two-three-four or two-thirty-four); only the English
+            corpus, whose labels came from an old transcript, has any
 """
 
 import csv
@@ -25,9 +33,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from line_coverage import fold, spell_digits  # noqa: E402
 from cut_clips import KEEP_SCORE  # noqa: E402
+from tail_check import has_tail_fragment  # noqa: E402
 
 
-def main(lang: str, dataset: str, trust_wording: bool, dropped: set[str]) -> None:
+def main(lang: str, dataset: str, trust_wording: bool, dropped: set[str], bed: set[str] = frozenset()) -> None:
     d = Path(dataset)
     rows = list(csv.DictReader(open(d / "manifest.tsv", encoding="utf-8"), delimiter="\t"))
     used = {(r["take"], int(n)) for r in rows for n in r["lines"].split("+")}
@@ -41,8 +50,14 @@ def main(lang: str, dataset: str, trust_wording: bool, dropped: set[str]) -> Non
                          if n <= max(k for t, k in used if t == r["take"]))
         if r["id"] in dropped:
             reasons[r["id"]] = "dropped"
+        elif r["take"] in bed:
+            reasons[r["id"]] = "bed"
+        elif any(c.isdigit() for c in r["text"]):
+            reasons[r["id"]] = "digits"
         elif float(r["edge_db"]) >= -40:
             reasons[r["id"]] = "edge"
+        elif has_tail_fragment(d / "clips" / f"{r['id']}.wav"):
+            reasons[r["id"]] = "tail"
         elif not 0.6 <= float(r["pace"]) <= 1.5 and not (tw - 2 <= hw <= tw + 1):
             reasons[r["id"]] = "length"
         elif float(r["score"]) < KEEP_SCORE[lang] and not trust_wording:
@@ -64,4 +79,8 @@ if __name__ == "__main__":
     drop = set()
     if "--drop" in args:
         drop = set(args[args.index("--drop") + 1].split(","))
-    main(args[0], args[1], "--trust-wording" in args, drop)
+    bed = set()
+    if "--bed" in args:
+        bed = {l.strip() for l in open(args[args.index("--bed") + 1], encoding="utf-8")
+               if l.strip() and not l.startswith("#")}
+    main(args[0], args[1], "--trust-wording" in args, drop, bed)
