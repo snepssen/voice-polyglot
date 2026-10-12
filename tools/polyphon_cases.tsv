@@ -1,0 +1,28 @@
+# lang<TAB>text<TAB>expected IPA, sentences joined by ' | '. Generated from tools/polyphon.py and reviewed;
+# every port of the layer (the Swift one in translate-core) must reproduce these exactly.
+# hard dz fixed, soft dź kept, voicing across words kept
+pl	Gdzieś daleko dzwoni dzwon. Jest bardzo blisko, pieniądze leżą.	ɡdʑˈɛʑ dalˈɛkɔ dzvˈɔɲi dzvˈɔn. | jɛzd bˈardzɔ blˈiskɔ, pʲɛɲʲˈɔndzɛ lˈɛʒɔ̃.
+pl	Dziecko je dżem, a rodzina widzi sadzawkę.	dʑˈɛtskɔ jˈɛ dʒˈɛm, a rɔdʑˈina vˈidʑi sadzˈafkɛ.
+# doubles as ː; final devoicing left to espeak-ng (correct)
+pl	Oddech jest miękki. Chleb, Bóg, bank.	ˈɔdːɛx jɛst mʲˈɛŋkːi. | xlˈɛp, bˈuk, bˈaŋk.
+# KNOWN GAP: dzwoń stays dʑ (see _polish_hard_dz)
+pl	Nie dzwoń do mnie, bo nie ma tu nic do zrobienia.	ɲʲˈɛdʑvɔɲ dɔ mɲʲɛ, bˈɔ ɲʲˈɛma tˈu ɲˈidʑ dɔ zrɔbjˈɛɲʲa.
+# silent h, n->m before b, sz+s -> ʃː
+hu	A méh és a juh. Különben az egészségedre!	ˌɑ mˈeː ˌeːʃ ˌɑ jˈu. | kˈylømbɛn ˌɑz ˈɛɡeːʃːeːɡɛdrɛ!
+# doubles as ː; espeak-ng's assimilations kept
+hu	Kell, vissza, szál, száll. Látja, barátság, hagyja.	kˌɛlː, vˌisːɑ, sˈaːl, sˌaːlː. | lˌaːcːɑ, bˈɑraːtʃːaːɡ, hˈɑɟːɑ.
+# ç precomposed, r -> ʁ, postvocalic r and -er -> ɐ
+de	Ich höre nur den Körper der Kinder. Rot, Rad, Herbst.	ɪç hˈøːʁə nˈuːɐ deːn kˈœɐpɐ dɛɐ kˈɪndɐ. | ʁˈoːt, ʁˈɑːt, hˈɛɐpst.
+de	Über, müde, Tür, Glück. Ach, Bach, Nacht.	ˈyːbɐ, mˈyːdə, tˈyːɐ, ɡlˈʏk. | ˈax, bˈax, nˈaxt.
+# g/ch -> χ, r -> ʀ
+nl	Goed, graag, acht, ruik. De rivier is ver.	χˈut, χʀˈaːχ, ˈɑχt, ʀˈœyk. | də ʀivˈiʀ ɪs vˈɛʀ.
+nl	Huis, tijd, deur, uur, schip.	hˈœys, tˈɛɪt, dˈøːʀ, ˈyʀ, sχˈɪp.
+# r unified, doubles as ː
+it	Il ruscello, la terra, nonno e fatto. Rosso, caro, carro.	il rʊʃˈɛlːo, la tˈɛrːa, nˈɔnːo e fˈatːo. | rˈosːo, kˈaro, kˈarːo.
+it	Città, perché, tavolo, telefono. Famiglia, gnocchi, pesce.	tʃitːˈa, perkˈe, tˈavolo, telˈɛfono. | famˈiʎa, ɲˈokːɪ, pˈeʃe.
+# unchanged except doubles
+fr	Les amis arrivent à huit heures. Un bon vin blanc.	le-z amˈiʲ aʁˈivt a yˈit ˈœʁ. | œ̃ bˈɔ̃ vˈɛ̃ blˈɑ̃.
+# unchanged: tap ɾ vs trill r, Castilian θ
+es	Pero el perro corre por la carretera. Zapato, cerveza, lluvia.	pˌeɾo el pˈero kˈore poɾ la kˌaretˈeɾa. | θapˈato, θeɾβˈeθa, ʎˈuβja.
+# English is never touched
+en	The quick brown fox jumps over the lazy dog.	ðə kwˈɪk bɹˈaʊn fˈɑːks dʒˈʌmps ˌoʊvɚ ðə lˈeɪzi dˈɑːɡ.

@@ -1,0 +1,85 @@
+{
+  "id": "training-clips",
+  "label": "Piper training clips",
+  "summary": "One line of speech per file, cut with room either side, for fine-tuning a Piper voice.",
+  "source": "voice-forge TRAINING.md (lead and tail padding) and the English Suno corpus's measured levels",
+  "checked": "2026-10",
+  "confidence": "informal",
+  "options": {
+    "silence_threshold_db": -50.0
+  },
+  "rules": [
+    {
+      "id": "peak",
+      "metric": "peak_dbfs",
+      "label": "Sample peak",
+      "unit": "dBFS",
+      "max": -1.0,
+      "severity": "fail",
+      "note": "A clipped clip teaches the model the clip."
+    },
+    {
+      "id": "clipping",
+      "metric": "clipping_seconds",
+      "label": "Clipped audio",
+      "unit": "s",
+      "max": 0.0,
+      "severity": "fail"
+    },
+    {
+      "id": "dc",
+      "metric": "dc_offset_max",
+      "label": "DC offset",
+      "max": 0.01,
+      "severity": "warn"
+    },
+    {
+      "id": "floor",
+      "metric": "noise_floor_dbfs",
+      "label": "Noise floor",
+      "unit": "dBFS",
+      "max": -55.0,
+      "severity": "fail",
+      "note": "Anything louder between words is a bed under the voice -- the flutes, last time."
+    },
+    {
+      "id": "rms",
+      "metric": "rms_dbfs",
+      "label": "RMS level",
+      "unit": "dBFS",
+      "min": -32.0,
+      "max": -17.0,
+      "severity": "warn",
+      "note": "The English clips sit at -23.5 dB median, -29 to -21 between the 10th and 90th percentile."
+    },
+    {
+      "id": "lead",
+      "metric": "lead_silence_s",
+      "label": "Opening silence",
+      "unit": "s",
+      "min": 0.03,
+      "max": 0.6,
+      "severity": "warn",
+      "note": "TRAINING.md: 100-150 ms before the first sound. Zero means a clip that starts mid-sound."
+    },
+    {
+      "id": "tail",
+      "metric": "tail_silence_s",
+      "label": "Closing silence",
+      "unit": "s",
+      "min": 0.1,
+      "max": 1.0,
+      "severity": "warn",
+      "note": "TRAINING.md: up to 700 ms after the last sound, never trimmed hard."
+    },
+    {
+      "id": "mid",
+      "metric": "longest_mid_silence_s",
+      "label": "Longest pause inside",
+      "unit": "s",
+      "max": 1.5,
+      "severity": "warn",
+      "note": "Joined lines keep about 0.45 s between them; a long gap inside means a cut went wrong."
+    }
+  ]
+}

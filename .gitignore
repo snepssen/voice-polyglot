@@ -1,0 +1,7 @@
+checkpoints/
+*.ckpt
+*.wav
+.DS_Store
+__pycache__/
+work/
+.venv/
