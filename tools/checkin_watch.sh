@@ -4,8 +4,10 @@
 # generator of each in RUN/keep/ -- the trainer deletes all but the five
 # lowest-val_mel checkpoints, which once val_mel flattens is close to
 # arbitrary. Prints an
-# ALERT line when English falls under 95% or any language drops more than
-# 10 points below its best so far -- the only lines worth interrupting for.
+# ALERT line when English falls under 95%, or when a language is more than 10
+# points below its best in two check-ins running -- a single noiseless
+# sentence swings from one epoch to the next (Dutch at 9, Hungarian at 17),
+# a real regression stays.
 # The one-word "Breathe in." is scored but never alerts: Parakeet hears it
 # as "Breathing." on and off, while the same words in the full sentence pass.
 #
@@ -33,8 +35,10 @@ for k, v in last.items():
     if k == "en-short":
         continue
     v = int(v); best = max([int(r[k]) for r in prev if k in r] or [v])
-    if (k == "en" and v < 95) or v < best - 10:
-        print(f"ALERT {k} {v}% (best so far {best}%)", flush=True)
+    before = int(prev[-1][k]) if prev and k in prev[-1] else v
+    best_before = max([int(r[k]) for r in prev[:-1] if k in r] or [before])
+    if (k == "en" and v < 95) or (v < best - 10 and before < best_before - 10):
+        print(f"ALERT {k} {v}% and {before}% (best so far {best}%)", flush=True)
 PY
   done
   sleep 60
