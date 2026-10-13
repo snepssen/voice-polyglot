@@ -1,6 +1,9 @@
 """Turn every language's train.csv into the phoneme ids the trainer reads.
 
-    python build_ids.py WORK_DIR OUT_DIR lang=folder [lang=folder ...]
+    python build_ids.py WORK_DIR OUT_DIR [--clips SUBDIR] lang=folder [lang=folder ...]
+
+--clips picks the clip folder inside each dataset (default clips; the
+re-trimmed ones are clips-v2).
 
 Piper's trainer accepts `utt_id|text|phoneme_ids` (its PHONEME_IDS dataset
 type), which hands it ids we computed rather than letting it phonemize --
@@ -24,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import polyphon  # noqa: E402
 
 
-def main(work: str, out: str, pairs: list[str]) -> None:
+def main(work: str, out: str, pairs: list[str], clips: str = "clips") -> None:
     work_dir, out_dir = Path(work), Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
     every = []
@@ -36,7 +39,7 @@ def main(work: str, out: str, pairs: list[str]) -> None:
             sentences = polyphon.phonemize(text, lang)
             unknown |= set(polyphon.check_symbols(sentences))
             ids = list(itertools.chain(*(phonemes_to_ids(s, DEFAULT_PHONEME_ID_MAP) for s in sentences)))
-            utt = f"{folder}/dataset/clips/{cid}"
+            utt = f"{folder}/dataset/{clips}/{cid}"
             assert (work_dir / f"{utt}.wav").exists(), utt
             rows.append(f"{utt}|{text}|{' '.join(map(str, ids))}")
             ipa_rows.append(f"{cid}\t{text}\t{' | '.join(''.join(s) for s in sentences)}")
@@ -51,4 +54,8 @@ def main(work: str, out: str, pairs: list[str]) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3:])
+    args = sys.argv[3:]
+    clips = "clips"
+    if "--clips" in args:
+        i = args.index("--clips"); clips = args[i + 1]; del args[i:i + 2]
+    main(sys.argv[1], sys.argv[2], args, clips)

@@ -15,7 +15,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 RUN="${1:-work/runs/polyglot}"
-OUT=work/runs/checkin
+OUT="${OUT:-work/runs/checkin-v2}"
 mkdir -p "$OUT"; touch "$OUT/scores.txt"
 while pgrep -f "tools/train.py .* $RUN" >/dev/null; do
   for c in $(find "$RUN" -name 'epoch=*.ckpt' | sort -t= -k2 -n); do

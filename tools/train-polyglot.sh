@@ -5,7 +5,9 @@
 #   tools/train-polyglot.sh new    [extra lightning args]   start the run
 #   tools/train-polyglot.sh resume [extra lightning args]   continue it
 #
-# The data is work/train/all.csv: phoneme ids written by tools/build_ids.py
+# The data is work/train-v2/all.csv -- the re-trimmed clips (tools/retrim.py;
+# work/train/ holds the first cut, whose padding taught the voice dead air).
+# Phoneme ids written by tools/build_ids.py
 # through polyphon, so the trainer never phonemizes anything itself. Piper's
 # trim_silence is off: it would cut every clip to 0.25 s of padding, undoing
 # the 150 ms lead and up-to-700 ms tail TRAINING.md asks for and cut_clips
@@ -17,11 +19,11 @@ MODE="${1:?new or resume}"; shift
 RUN="${RUN:-work/runs/polyglot}"
 exec .venv/bin/python -I tools/train.py "$MODE" "$RUN" \
   --data.voice_name snepssen \
-  --data.csv_path work/train/all.csv \
+  --data.csv_path "${CSV:-work/train-v2/all.csv}" \
   --data.audio_dir work \
   --data.dataset_type phoneme_ids \
   --data.espeak_voice en-us \
-  --data.cache_dir "${CACHE:-work/train/cache-v1}" \
+  --data.cache_dir "${CACHE:-work/train-v2/cache}" \
   --data.config_path work/train/config.json \
   --data.batch_size "${BATCH:-8}" \
   --data.validation_split 0.02 \

@@ -1,11 +1,15 @@
 """Render the same sentences in every language from a training checkpoint.
 
-    python checkin.py CHECKPOINT OUT_DIR [--noise]
+    python checkin.py CHECKPOINT OUT_DIR [--no-noise]
 
 Straight from the checkpoint in torch -- no ONNX export -- so any epoch can
 be heard while the run continues. Phonemes come from polyphon, as in
-training. Noise scales are zero by default, so two epochs differ only in what
-the model learned; --noise renders with Piper's usual 0.667 / 0.8 instead.
+training. Rendered as the voice is played: Piper's 0.667 / 0.8 noise scales,
+with the random seed fixed per sentence so two epochs still differ only in
+what the model learned. --no-noise renders with both at zero -- which is how
+the first check-ins were made, and it misled: the duration predictor's
+noise-free guess runs 20-25% faster than the speech it learned from, and
+the timbre goes flat and buzzy.
 
 Also renders the English sentence that used to end in a stray fragment, so
 the old fault can be listened for.
@@ -59,7 +63,7 @@ def load(ckpt_path: str) -> tuple[SynthesizerTrn, int]:
     return g, hp["sample_rate"]
 
 
-def main(ckpt: str, out: str, noise: bool = False) -> None:
+def main(ckpt: str, out: str, noise: bool = True) -> None:
     g, rate = load(ckpt)
     out_dir = pathlib.Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -67,8 +71,9 @@ def main(ckpt: str, out: str, noise: bool = False) -> None:
     for key, text in SENTENCES.items():
         lang = key.split("-")[0]
         parts = []
-        for sent in polyphon.phonemize(text, lang):
+        for n, sent in enumerate(polyphon.phonemize(text, lang)):
             ids = phonemes_to_ids(sent, DEFAULT_PHONEME_ID_MAP)
+            torch.manual_seed(1000 * list(SENTENCES).index(key) + n)
             with torch.no_grad():
                 audio = g.infer(torch.tensor([ids]), torch.tensor([len(ids)]),
                                 noise_scale=ns, length_scale=1.0, noise_scale_w=nw)[0]
@@ -82,4 +87,4 @@ def main(ckpt: str, out: str, noise: bool = False) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], "--noise" in sys.argv[3:])
+    main(sys.argv[1], sys.argv[2], "--no-noise" not in sys.argv[3:])

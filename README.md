@@ -89,6 +89,8 @@ Polish take however the prompt forbade it; the stems were clean, with pauses at
     voicing.py            how much of each clip is voiced rather than breathed
     select_clips.py       the training list, and why each clip left out was
     tail_check.py         clips ending in the next line's first sound
+    retrim.py             clip padding brought to what the voice first learned
+                          from (see Pace, below)
     review_page.py        a local listening page for what only a native ear
                           can judge
     build_ids.py          every training line through polyphon, into the
@@ -141,8 +143,9 @@ starts under `caffeinate` and `nohup`, detached, logging to
 To listen while it trains:
 
 ```sh
-uv run python tools/checkin.py work/runs/polyglot/lightning_logs/version_0/checkpoints/last.ckpt work/runs/checkin/epoch-N
-uv run python tools/checkin_score.py work/runs/checkin/epoch-*
+uv run python tools/checkin.py work/runs/polyglot/keep/epoch-NNN.pt work/runs/checkin-v2/epoch-NNN
+uv run python tools/checkin_score.py work/runs/checkin-v2/epoch-*
+uv run python tools/listen_page.py        # every epoch side by side, blind if wanted
 ```
 
 The same sentence in every language, noise off, from any checkpoint. The
@@ -150,6 +153,28 @@ score is how much Parakeet recovers — a trend to say which languages moved,
 not a verdict. Before training:
 
     en 100%   es 75%   de 73%   it 68%   hu 51%   fr 40%   pl 35%   nl 21%
+
+### Pace, and the padding that broke it
+
+After 47 epochs the voice spoke every language intelligibly and sounded
+rushed and robotic doing it. Two causes, measured:
+
+- **The check-ins were rendered with the noise scales at zero.** The
+  duration predictor's noise-free guess runs 20–25% faster than the speech
+  it learned from, and the timbre goes flat. Rendered as the voice is
+  played (0.667 / 0.8), German, French and Spanish came back to 24–26
+  characters a second against 23–25 in their clips. Check-ins now render
+  that way, with a fixed seed so epochs stay comparable.
+- **The clips carried dead air.** cut_clips measured the last word against
+  −50 dB, and Suno's breathy reverb decays between −50 and −40 dB, so each
+  clip ended in half a second of decay plus the 0.7 s tail: ~0.3 s before
+  the first word, ~1.1 s after the last, 0.55 s pauses at commas. The voice
+  learned exactly that — half-second lead-ins, over a second of silence
+  after every sentence — with the words packed between. The old English
+  clips that produced the voice before this run had 0.07 s, 0.21 s and
+  0.25 s. `tools/retrim.py` brings every clip to 0.08 s / 0.25 s with no
+  inner pause over 0.35 s (25–38% of the new-language audio was silence),
+  and training resumed from epoch 47 on the re-trimmed clips.
 
 ## The checkpoint
 

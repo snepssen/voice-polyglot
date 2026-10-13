@@ -2,7 +2,7 @@
 
     python listen_page.py [CHECKIN_DIR]
 
-Writes CHECKIN_DIR/listen.html (default work/runs/checkin): for every
+Writes CHECKIN_DIR/listen.html (default work/runs/checkin-v2): for every
 language, the check-in sentence rendered by every checked-in epoch and by the
 voice before training, one click each. Blind mode shuffles the order and
 hides the epoch and the Parakeet score, so the choice is made on sound alone.
@@ -179,7 +179,7 @@ render();
 """
 
 
-def main(checkin_dir: str = "work/runs/checkin") -> None:
+def main(checkin_dir: str = "work/runs/checkin-v2") -> None:
     d = Path(checkin_dir)
     epochs = sorted((p.name for p in d.glob("epoch-*") if p.is_dir()),
                     key=lambda n: -1 if "before" in n else int(re.search(r"\d+", n).group()))
