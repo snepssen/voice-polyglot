@@ -93,6 +93,11 @@ Polish take however the prompt forbade it; the stems were clean, with pauses at
                           from (see Pace, below)
     review_page.py        a local listening page for what only a native ear
                           can judge
+    export_voice.py       a checkpoint as a Piper voice (.onnx + .json), checked
+                          to speak exactly like the checkpoint; carries the
+                          tools-core export fixes (legacy tracer, scripted
+                          generate_path -- the old "y-you" stutter)
+    milestone_watch.sh    every 25 epochs of a run: export, check-in, score
     build_ids.py          every training line through polyphon, into the
                           phoneme ids Piper's trainer reads
 
@@ -136,14 +141,18 @@ already holds checkpoints, and `resume` neutralises the warm start every
 checkpoint carries, which would otherwise copy the base voice over the
 restored weights. The warm start copies all 784 weights, none skipped.
 
-On the M1 at batch 8 an epoch of 2,152 clips takes about 20 minutes. The run
+On the M1 at batch 8 an epoch of 2,152 clips took about 20 minutes on the
+first cut and ~15 on the re-trimmed clips. The run is meant to go three to
+four days and take its time; `milestone_watch.sh` exports the voice every 25
+epochs to `work/runs/polyglot/exports/epoch-NNN/` and stays quiet otherwise. The run
 starts under `caffeinate` and `nohup`, detached, logging to
 `work/runs/polyglot.log`.
 
 To listen while it trains:
 
 ```sh
-uv run python tools/checkin.py work/runs/polyglot/keep/epoch-NNN.pt work/runs/checkin-v2/epoch-NNN
+tools/milestone_watch.sh                  # every 25 epochs: export, render, score, flag regressions
+uv run python tools/checkin.py CHECKPOINT work/runs/checkin-v2/epoch-NNN
 uv run python tools/checkin_score.py work/runs/checkin-v2/epoch-*
 uv run python tools/listen_page.py        # every epoch side by side, blind if wanted
 ```

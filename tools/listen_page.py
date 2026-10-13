@@ -14,8 +14,8 @@ mumbled or swallowed syllables, wobbling pitch, a stray sound after the last
 word, and pacing that rushes or drags are all audible without knowing the
 language.
 
-Epochs whose generator was not kept (rendered before checkin_watch kept
-them, then deleted by the trainer) are marked: heard, but not choosable.
+Epochs without an export (milestone_watch exports every 25th) are marked:
+heard, but not choosable as the final voice.
 
 Serve the folder over http (the page loads epoch-NNN/<lang>.wav beside it).
 The page is static; regenerate it to add epochs that arrive later.
@@ -79,7 +79,7 @@ section.current { outline:2px solid var(--accent); outline-offset:1px; }
   <button id="copy">Copy verdicts</button>
 </header>
 <main>
-<p class="help">Click a render to play it; click again to replay. <b>←/→</b> step through renders and play, <b>↑/↓</b> change language, <b>space</b> replays, <b>b</b> marks best (one per language), <b>x</b> marks bad. Listen for clicks, buzz or metallic tone, swallowed syllables, wobbling pitch, a stray sound after the last word, and rushed or dragging pace — none of that needs the language. Blind mode shuffles each row and hides labels until you turn it off. A <b>·</b> after an epoch means only its renders survive, not its weights: it can be heard but not chosen as the final voice.</p>
+<p class="help">Click a render to play it; click again to replay. <b>←/→</b> step through renders and play, <b>↑/↓</b> change language, <b>space</b> replays, <b>b</b> marks best (one per language), <b>x</b> marks bad. Listen for clicks, buzz or metallic tone, swallowed syllables, wobbling pitch, a stray sound after the last word, and rushed or dragging pace — none of that needs the language. Blind mode shuffles each row and hides labels until you turn it off. A <b>·</b> after an epoch means it has no exported voice: it can be heard but not chosen. Every 25th epoch is exported.</p>
 <div id="list"></div>
 <div class="verdicts" id="verdicts"></div>
 </main>
@@ -198,8 +198,8 @@ def main(checkin_dir: str = "work/runs/checkin-v2") -> None:
             else:
                 row.append(scores.get(e, {}).get(key, "–"))
         langs.append({"key": key, "name": NAMES.get(key, key), "text": text, "scores": row})
-    run = d.parent / "polyglot" / "keep"
-    kept = [("before" in e) or (run / f"{e}.pt").exists() for e in epochs]
+    exports = d.parent / "polyglot" / "exports"
+    kept = [("before" in e) or any(exports.glob(f"{e}*")) for e in epochs]
     data = {"epochs": epochs, "labels": labels, "langs": langs, "kept": kept}
     (d / "listen.html").write_text(PAGE.replace("__DATA__", json.dumps(data, ensure_ascii=False)), encoding="utf-8")
     print(f"{d / 'listen.html'}: {len(epochs)} renders x {len(langs)} sentences")
