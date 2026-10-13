@@ -14,6 +14,9 @@ mumbled or swallowed syllables, wobbling pitch, a stray sound after the last
 word, and pacing that rushes or drags are all audible without knowing the
 language.
 
+Epochs whose generator was not kept (rendered before checkin_watch kept
+them, then deleted by the trainer) are marked: heard, but not choosable.
+
 Serve the folder over http (the page loads epoch-NNN/<lang>.wav beside it).
 The page is static; regenerate it to add epochs that arrive later.
 """
@@ -61,6 +64,7 @@ section.current { outline:2px solid var(--accent); outline-offset:1px; }
 .cell.focus { outline:2px dashed var(--muted); outline-offset:1px; }
 .cell.best { border-color:var(--best); background:color-mix(in srgb, var(--best) 18%, var(--chip)); }
 .cell.bad { border-color:var(--bad); opacity:.55; text-decoration:line-through; }
+.cell.gone .label::after { content:" ·"; color:var(--muted); }
 .cell .mark { font-size:10px; letter-spacing:.04em; text-transform:uppercase; color:var(--best); }
 .cell.bad .mark { color:var(--bad); }
 .blind .score { visibility:hidden; }
@@ -75,7 +79,7 @@ section.current { outline:2px solid var(--accent); outline-offset:1px; }
   <button id="copy">Copy verdicts</button>
 </header>
 <main>
-<p class="help">Click a render to play it; click again to replay. <b>←/→</b> step through renders and play, <b>↑/↓</b> change language, <b>space</b> replays, <b>b</b> marks best (one per language), <b>x</b> marks bad. Listen for clicks, buzz or metallic tone, swallowed syllables, wobbling pitch, a stray sound after the last word, and rushed or dragging pace — none of that needs the language. Blind mode shuffles each row and hides labels until you turn it off.</p>
+<p class="help">Click a render to play it; click again to replay. <b>←/→</b> step through renders and play, <b>↑/↓</b> change language, <b>space</b> replays, <b>b</b> marks best (one per language), <b>x</b> marks bad. Listen for clicks, buzz or metallic tone, swallowed syllables, wobbling pitch, a stray sound after the last word, and rushed or dragging pace — none of that needs the language. Blind mode shuffles each row and hides labels until you turn it off. A <b>·</b> after an epoch means only its renders survive, not its weights: it can be heard but not chosen as the final voice.</p>
 <div id="list"></div>
 <div class="verdicts" id="verdicts"></div>
 </main>
@@ -115,6 +119,7 @@ function render() {
       const id = `${DATA.epochs[ei]}/${L.key}`;
       const c = document.createElement("div");
       c.className = "cell";
+      if (!DATA.kept[ei]) c.classList.add("gone");
       if (state.best[L.key] === DATA.epochs[ei]) c.classList.add("best");
       if ((state.bad[L.key] || []).includes(DATA.epochs[ei])) c.classList.add("bad");
       if (playing === id) c.classList.add("playing");
@@ -193,7 +198,9 @@ def main(checkin_dir: str = "work/runs/checkin") -> None:
             else:
                 row.append(scores.get(e, {}).get(key, "–"))
         langs.append({"key": key, "name": NAMES.get(key, key), "text": text, "scores": row})
-    data = {"epochs": epochs, "labels": labels, "langs": langs}
+    run = d.parent / "polyglot" / "keep"
+    kept = [("before" in e) or (run / f"{e}.pt").exists() for e in epochs]
+    data = {"epochs": epochs, "labels": labels, "langs": langs, "kept": kept}
     (d / "listen.html").write_text(PAGE.replace("__DATA__", json.dumps(data, ensure_ascii=False)), encoding="utf-8")
     print(f"{d / 'listen.html'}: {len(epochs)} renders x {len(langs)} sentences")
 
