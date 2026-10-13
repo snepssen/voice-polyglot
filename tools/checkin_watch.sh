@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Render and score a check-in for every new checkpoint of a run, into
-# work/runs/checkin/<epoch>/ and work/runs/checkin/scores.txt. Prints an
+# work/runs/checkin/<epoch>/ and work/runs/checkin/scores.txt, and keep the
+# generator of each in RUN/keep/ -- the trainer deletes all but the five
+# lowest-val_mel checkpoints, which once val_mel flattens is close to
+# arbitrary. Prints an
 # ALERT line when English falls under 95% or any language drops more than
 # 10 points below its best so far -- the only lines worth interrupting for.
 # The one-word "Breathe in." is scored but never alerts: Parakeet hears it
@@ -18,6 +21,8 @@ while pgrep -f "tools/train.py .* $RUN" >/dev/null; do
     [ -d "$d" ] && continue
     sleep 20  # let the checkpoint finish writing
     .venv/bin/python -I tools/checkin.py "$c" "$d" >/dev/null 2>&1 || { echo "ALERT check-in failed for $c"; continue; }
+    mkdir -p "$RUN/keep"
+    .venv/bin/python -I tools/keep_generator.py "$c" "$RUN/keep/epoch-$(printf %03d "$e").pt" || echo "ALERT could not keep $c"
     line=$(.venv/bin/python -I tools/checkin_score.py "$d" 2>/dev/null | grep "^epoch-")
     echo "$line" >> "$OUT/scores.txt"
     python3 - "$OUT/scores.txt" <<'PY'
