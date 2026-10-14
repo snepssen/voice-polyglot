@@ -1,5 +1,5 @@
 # lang<TAB>text<TAB>expected IPA, sentences joined by ' | '. Generated from tools/polyphon.py and reviewed;
-# every port of the layer (the Swift one in translate-core) must reproduce these exactly.
+# every port of the layer (the Swift one in voice-core) must reproduce these exactly.
 # hard dz fixed, soft dź kept, voicing across words kept
 pl	Gdzieś daleko dzwoni dzwon. Jest bardzo blisko, pieniądze leżą.	ɡdʑˈɛʑ dalˈɛkɔ dzvˈɔɲi dzvˈɔn. | jɛzd bˈardzɔ blˈiskɔ, pʲɛɲʲˈɔndzɛ lˈɛʒɔ̃.
 pl	Dziecko je dżem, a rodzina widzi sadzawkę.	dʑˈɛtskɔ jˈɛ dʒˈɛm, a rɔdʑˈina vˈidʑi sadzˈafkɛ.

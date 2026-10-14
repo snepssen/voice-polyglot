@@ -40,7 +40,7 @@ Epoch $EPOCH, exported $DATE$MARK.
 $([ "$STATUS" = final ] || echo "
 \\* Training is still running. A newer release replaces this one as the latest; apps that fetch \`releases/latest\` follow it.")
 
-Phonemize with tools/polyphon.py (or its Swift port in translate-core), not plain espeak-ng, and speak each language at the length_scale in the config's \"polyglot\" block.
+Phonemize with tools/polyphon.py (or its Swift port in voice-core), not plain espeak-ng, and speak each language at the length_scale in the config's \"polyglot\" block.
 
 Verified against its training checkpoint (tools/verify_rebuild.py) before release."
 if gh release view "$TAG" >/dev/null 2>&1; then

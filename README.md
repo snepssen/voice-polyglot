@@ -27,7 +27,7 @@ and an app that fetches `latest` is updated by every release.
 (`tools/release_voice.sh`); the config's `polyglot` block carries its epoch,
 release date, status (`in training` until the last one, marked with an
 asterisk in the title), the languages and each one's `length_scale`. Text must
-go through `tools/polyphon.py` (or translate-core's Swift port, held to it by
+go through `tools/polyphon.py` (or its Swift port in [voice-core](https://github.com/snepssen/voice-core), held to it by
 fixtures), not plain espeak-ng.
 
 ## Where it stands
