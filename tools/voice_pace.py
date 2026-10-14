@@ -19,11 +19,13 @@ LENGTH_SCALE = {
     "pl": 1.2,
     "hu": 1.2,
     "de": 1.4,
-    # 1.4 was still too quick for these four; a slower round is being judged
-    "nl": 1.4,
-    "fr": 1.4,
-    "es": 1.4,
-    "it": 1.4,
+    # Dutch: E for most of the sentence, but "kan niet zwemmen" speeds up out
+    # of nowhere and wanted F (1.85) -- a burst inside a sentence that one
+    # scale per language cannot fix; per-token durations are the tool for it
+    "nl": 1.7,
+    "fr": 1.55,
+    "es": 1.55,
+    "it": 1.55,
 }
 
 
