@@ -131,7 +131,7 @@ uv run python tools/polyphon.py --check tools/polyphon_cases.tsv
 ## Training
 
     tools/train-polyglot.sh new       start, warm-started from the rebuilt epoch-702 voice
-    tools/train-polyglot.sh resume    continue from the run's last.ckpt
+    tools/train-polyglot.sh resume    continue from the newer of last.ckpt and latest.ckpt
 
 `tools/train.py` is Piper's trainer with what 1.8.0 needs on this Mac — the
 monotonic alignment core its wheel ships without (provided in numba), the
@@ -140,6 +140,15 @@ Lightning 2.6 dropped — and two guards: `new` refuses a run folder that
 already holds checkpoints, and `resume` neutralises the warm start every
 checkpoint carries, which would otherwise copy the base voice over the
 restored weights. The warm start copies all 784 weights, none skipped.
+
+It also saves what Piper doesn't. Piper's checkpoint callback writes
+`last.ckpt` only when an epoch enters the val_mel top five; that is all
+this Lightning does with `save_last`. Once val_mel flattens it hardly ever
+happens. Epochs 75 and 100 of the long run were never on disk to export,
+and a crash would have resumed from hours back. So `train.py` adds
+`latest.ckpt`, replaced after every epoch, and
+`milestone-epoch=NNN.ckpt` every 25 epochs (`MILESTONE_EVERY`), never
+overwritten. `milestone_watch.sh` exports from those.
 
 On the M1 at batch 8 an epoch of 2,152 clips took about 20 minutes on the
 first cut and ~15 on the re-trimmed clips. The run is meant to go three to

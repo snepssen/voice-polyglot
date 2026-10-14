@@ -36,9 +36,40 @@ import piper_fixes  # noqa: E402,F401
 import piper.train.__main__ as piper_main  # noqa: E402
 from piper.train.vits.lightning import VitsModel  # noqa: E402
 
+import os  # noqa: E402
+
+from lightning.pytorch.callbacks import Callback  # noqa: E402
+
+MILESTONE_EVERY = int(os.environ.get("MILESTONE_EVERY", "25"))
+
+
+class Milestones(Callback):
+    """Save latest.ckpt after every epoch and keep milestone-epoch=NNN.ckpt
+    every MILESTONE_EVERY epochs.
+
+    Piper's ModelCheckpoint writes last.ckpt only when an epoch enters the
+    val_mel top five -- this Lightning saves "last" only alongside a top-k
+    save. Once val_mel flattens that is rare: epochs 75 and 100 of the first
+    long run were never on disk to export, and a crash would have resumed
+    from hours back. latest.ckpt is replaced atomically; resume takes
+    whichever of it and last.ckpt is newer.
+    """
+
+    def on_validation_end(self, trainer, pl_module) -> None:
+        if trainer.sanity_checking or trainer.checkpoint_callback is None:
+            return
+        folder = pathlib.Path(trainer.checkpoint_callback.dirpath)
+        folder.mkdir(parents=True, exist_ok=True)
+        tmp = folder / "latest.ckpt.tmp"
+        trainer.save_checkpoint(tmp)
+        os.replace(tmp, folder / "latest.ckpt")
+        if trainer.current_epoch % MILESTONE_EVERY == 0:
+            trainer.save_checkpoint(folder / f"milestone-epoch={trainer.current_epoch:03d}.ckpt")
+
+
 piper_main._DEFAULT_CALLBACKS = [
     cb for cb in piper_main._DEFAULT_CALLBACKS if getattr(cb, "monitor", None) != "val_mos"
-]
+] + [Milestones()]
 
 
 def main() -> None:
@@ -50,7 +81,8 @@ def main() -> None:
                      f"would copy the base voice over them. Use `resume`.")
         args = rest
     elif mode == "resume":
-        last = sorted(run_dir.rglob("last.ckpt"), key=lambda p: p.stat().st_mtime)
+        last = sorted([*run_dir.rglob("last.ckpt"), *run_dir.rglob("latest.ckpt")],
+                      key=lambda p: p.stat().st_mtime)
         if not last:
             sys.exit(f"nothing to resume in {run_dir}")
         original = VitsModel.on_fit_start
