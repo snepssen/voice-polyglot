@@ -19,7 +19,8 @@ Three fixes, from tools-core/piper-workflows/export.py, where each was found:
 The config is the shipped voice's, with this voice's name and a "polyglot"
 block: these voices must be phonemized by polyphon (voice-polyglot), not by
 plain espeak-ng, or the corrected and language-specific symbols they learned
-are never asked for.
+are never asked for. The block also carries each language's playback
+length_scale (voice_pace.py): pass it when speaking that language.
 """
 # SPDX-License-Identifier: GPL-3.0-only
 # The scripted sequence-mask/path implementation is adapted from
@@ -77,6 +78,7 @@ def _generate_path_scripted(duration: torch.Tensor, mask: torch.Tensor) -> torch
 _commons.generate_path = _generate_path_scripted
 
 from piper.phoneme_ids import DEFAULT_PHONEME_ID_MAP  # noqa: E402
+from voice_pace import LENGTH_SCALE  # noqa: E402
 from piper.train.export_onnx import main as piper_export  # noqa: E402
 
 TEMPLATE = {
@@ -108,6 +110,7 @@ def main(ckpt: str, out: str, name: str | None = None) -> None:
     config["polyglot"] = {
         "phonemizer": "voice-polyglot tools/polyphon.py -- phonemize(text, lang); plain espeak-ng misses its fixes",
         "languages": LANGUAGES,
+        "length_scale": {k: LENGTH_SCALE[k] for k in LANGUAGES},
         "epoch": epoch,
         "trained_from": "snepssen epoch 702 (rebuilt), all eight languages",
     }

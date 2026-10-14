@@ -1,6 +1,6 @@
 """Render the same sentences in every language from a training checkpoint.
 
-    python checkin.py CHECKPOINT OUT_DIR [--no-noise]
+    python checkin.py CHECKPOINT OUT_DIR [--no-noise] [--unpaced]
 
 Straight from the checkpoint in torch -- no ONNX export -- so any epoch can
 be heard while the run continues. Phonemes come from polyphon, as in
@@ -10,6 +10,9 @@ what the model learned. --no-noise renders with both at zero -- which is how
 the first check-ins were made, and it misled: the duration predictor's
 noise-free guess runs 20-25% faster than the speech it learned from, and
 the timbre goes flat and buzzy.
+
+Each language is rendered at its playback pace (voice_pace.py), as the app
+will speak it, from epoch 150 on; --unpaced renders everything at 1.0.
 
 Also renders the English sentence that used to end in a stray fragment, so
 the old fault can be listened for.
@@ -24,6 +27,7 @@ import torch
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import polyphon  # noqa: E402
+from voice_pace import length_scale  # noqa: E402
 from piper.phoneme_ids import DEFAULT_PHONEME_ID_MAP, phonemes_to_ids  # noqa: E402
 from piper.train.vits.models import SynthesizerTrn  # noqa: E402
 
@@ -63,20 +67,21 @@ def load(ckpt_path: str) -> tuple[SynthesizerTrn, int]:
     return g, hp["sample_rate"]
 
 
-def main(ckpt: str, out: str, noise: bool = True) -> None:
+def main(ckpt: str, out: str, noise: bool = True, paced: bool = True) -> None:
     g, rate = load(ckpt)
     out_dir = pathlib.Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
     ns, nw = (0.667, 0.8) if noise else (0.0, 0.0)
     for key, text in SENTENCES.items():
         lang = key.split("-")[0]
+        pace = length_scale(lang) if paced else 1.0
         parts = []
         for n, sent in enumerate(polyphon.phonemize(text, lang)):
             ids = phonemes_to_ids(sent, DEFAULT_PHONEME_ID_MAP)
             torch.manual_seed(1000 * list(SENTENCES).index(key) + n)
             with torch.no_grad():
                 audio = g.infer(torch.tensor([ids]), torch.tensor([len(ids)]),
-                                noise_scale=ns, length_scale=1.0, noise_scale_w=nw)[0]
+                                noise_scale=ns, length_scale=pace, noise_scale_w=nw)[0]
             parts += [audio.squeeze().numpy(), np.zeros(int(0.25 * rate), np.float32)]
         x = np.concatenate(parts)
         x = x / max(np.abs(x).max(), 1e-6) * 0.9
@@ -87,4 +92,4 @@ def main(ckpt: str, out: str, noise: bool = True) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], "--no-noise" not in sys.argv[3:])
+    main(sys.argv[1], sys.argv[2], "--no-noise" not in sys.argv[3:], "--unpaced" not in sys.argv[3:])
