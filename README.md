@@ -11,6 +11,25 @@ every language in IPA first, and the voice's input table already holds 166
 IPA symbols. So the alphabet was never the problem. What the voice lacks is
 having *heard* the other languages, and that is what this repository gives it.
 
+## Get the voice
+
+The voice is published here, and only here, as
+[GitHub Releases](https://github.com/snepssen/voice-polyglot/releases): every
+app that speaks with snepssen fetches it from this repository rather than
+keeping a copy. The asset names never change, so the newest voice is always
+
+    https://github.com/snepssen/voice-polyglot/releases/latest/download/snepssen-polyglot.onnx
+    https://github.com/snepssen/voice-polyglot/releases/latest/download/snepssen-polyglot.onnx.json
+    https://github.com/snepssen/voice-polyglot/releases/latest/download/SHA256SUMS
+
+and an app that fetches `latest` is updated by every release.
+`tools/milestone_watch.sh` publishes each verified milestone of a run
+(`tools/release_voice.sh`); the config's `polyglot` block carries its epoch,
+release date, status (`in training` until the last one, marked with an
+asterisk in the title), the languages and each one's `length_scale`. Text must
+go through `tools/polyphon.py` (or translate-core's Swift port, held to it by
+fixtures), not plain espeak-ng.
+
 ## Where it stands
 
 | | clips | minutes |

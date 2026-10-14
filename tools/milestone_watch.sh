@@ -7,7 +7,8 @@
 #   tools/milestone_watch.sh [RUN_DIR]
 #
 # Exports land in RUN_DIR/exports/epoch-NNN/ (ONNX + config, verified against
-# the checkpoint), renders in work/runs/checkin-v2/epoch-NNN/, scores in
+# the checkpoint) and, verified, go up as the latest GitHub Release
+# (tools/release_voice.sh), renders in work/runs/checkin-v2/epoch-NNN/, scores in
 # work/runs/checkin-v2/scores.txt. An ALERT line is printed when English
 # falls under 95%, or a language sits more than 10 points under its best in
 # two milestones running; the one-word English sentence never alerts.
@@ -23,7 +24,10 @@ while pgrep -f "tools/train.py .* $RUN" >/dev/null; do
     n=$(basename "$ckpt" .ckpt); n=${n#milestone-epoch=}; e=$((10#$n))
     [ -d "$RUN/exports/epoch-$n" ] && continue
     sleep 30                                  # let the save finish
-    .venv/bin/python -I tools/export_voice.py "$ckpt" "$RUN/exports/epoch-$n" 2>/dev/null | tail -1 || echo "ALERT export failed at epoch $e"
+    exported=$(.venv/bin/python -I tools/export_voice.py "$ckpt" "$RUN/exports/epoch-$n" 2>/dev/null | tail -1) || echo "ALERT export failed at epoch $e"
+    echo "$exported"
+    # A verified export is the new voice for every app: published as the latest release.
+    case "$exported" in *PASS*) tools/release_voice.sh "$RUN/exports/epoch-$n" 2>&1 | tail -1 || echo "ALERT release failed at epoch $e";; esac
     .venv/bin/python -I tools/checkin.py "$ckpt" "$OUT/epoch-$n" >/dev/null 2>&1 || echo "ALERT check-in failed at epoch $e"
     line=$(.venv/bin/python -I tools/checkin_score.py "$OUT/epoch-$n" 2>/dev/null | grep "^epoch-")
     echo "$line" >> "$OUT/scores.txt"; echo "milestone $line"
