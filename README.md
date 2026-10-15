@@ -48,6 +48,26 @@ The new languages were read by the same Suno vocal profile from scripts in
 `corpus/`, cut into clips and checked here. Training started 2026-10-12 from the
 epoch-702 voice with all eight languages in the mix.
 
+**Training is complete at epoch 200** (2026-10-16), released as
+[voice-epoch-200](https://github.com/snepssen/voice-polyglot/releases/tag/voice-epoch-200),
+marked final. Speech recognition heard each language's check-in sentence as
+it was said:
+
+| epoch | en | pl | hu | de | nl | fr | es | it |
+|---|---|---|---|---|---|---|---|---|
+| 702 (English only) | 100 | 46 | 55 | 75 | 35 | 33 | 87 | 55 |
+| 50 | 100 | 93 | 89 | 97 | 100 | 100 | 100 | 97 |
+| 125 | 100 | 96 | 98 | 99 | 100 | 100 | 98 | 93 |
+| 150 | 100 | 94 | 99 | 99 | 100 | 95 | 98 | 100 |
+| 175 | 100 | 99 | 97 | 99 | 100 | 100 | 98 | 100 |
+| **200** | 100 | 98 | 99 | 99 | 100 | 99 | 98 | 100 |
+
+The run's checkpoints (resume from `milestone-epoch=200.ckpt`), every
+`work/` folder and the rebuilt epoch-702 checkpoint are archived on the
+`Archive` drive in `polyglot-training-archive/`, checksum-verified, with a
+README there on resuming. Locally only the exports, the datasets and the
+training lists remain.
+
 ## The English, re-cut
 
 The English the voice already speaks was re-cut from its 70 source blocks by
