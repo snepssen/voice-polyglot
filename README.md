@@ -250,9 +250,9 @@ The first rebuild failed that check with durations 3–6% long: the exporter had
 folded `exp(-logs)`'s minus sign into the stored constant.
 
 ```sh
-E=/Volumes/Archive/voice-training-data/from-deck/gatewayforge-voice/voice-epoch702
-B=/Volumes/Archive/piper-data/runs/snepssen/lightning_logs/version_1/checkpoints/last.ckpt
-uv run python tools/rebuild_from_onnx.py $E/en_US-snepssen-medium.onnx $B checkpoints/snepssen-epoch702-rebuilt.ckpt
+E="/Volumes/Archive/Training data/voice-training-data/from-deck/gatewayforge-voice/voice-epoch702"
+B="/Volumes/Archive/Old versions/piper-data/runs/snepssen/lightning_logs/version_1/checkpoints/last.ckpt"
+uv run python tools/rebuild_from_onnx.py "$E/en_US-snepssen-medium.onnx" "$B" checkpoints/snepssen-epoch702-rebuilt.ckpt
 uv run python tools/verify_rebuild.py checkpoints/snepssen-epoch702-rebuilt.ckpt \
   $E/en_US-snepssen-medium.onnx $E/en_US-snepssen-medium.onnx.json
 ```

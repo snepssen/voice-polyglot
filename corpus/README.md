@@ -7,7 +7,7 @@ Five Suno batches per language, same vocal profile and block tags as Polish and 
 - **Lists in threes and fours, each line ending in a full stop.** Long comma-runs of numbers were where cuts went wrong.
 - **Download the Lead Vocal stem** with every take. Suno added ambient music under every Polish take despite the prompt; the stems were clean.
 
-Save takes as `/Volumes/Archive/polyglot-training-data/<language>/<XX>-Batch N.wav` plus `<XX>-Batch N (Lead Vocal).wav`, as before.
+Save takes as `/Volumes/Archive/Training data/polyglot-training-data/<language>/<XX>-Batch N.wav` plus `<XX>-Batch N (Lead Vocal).wav`, as before.
 
 Accept a take once it is at least the *accept from* length below (85% of the estimate) -- not 5 minutes, which these batches are not meant to reach.
 
