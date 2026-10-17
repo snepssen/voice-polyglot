@@ -277,3 +277,14 @@ uv sync
 
 Python 3.12, MLX for Parakeet (Apple Silicon), Piper 1.8.0. GPL-3.0, as Piper
 and Voice Forge are.
+
+## Licence
+
+The code here (the training, export and phonemizer tools) is licensed under
+the GNU General Public License, version 3 ([LICENSE](LICENSE)).
+
+The voice itself is not: the released `snepssen-polyglot.onnx` files and the
+corpora were made from Suno-generated speech, and Suno's terms restrict using
+its output to train other models. Permission has been asked for. Until Suno
+gives it, the voice files are not licensed for redistribution, under the GPL
+or otherwise.
