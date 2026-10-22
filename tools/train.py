@@ -11,8 +11,8 @@ Fixes applied before piper.train is imported:
     compiled with numba, as the module that import expects.
   - Checkpoints pickled under older torch hold a pathlib.PosixPath in their
     hyperparameters; torch's weights-only loader refuses it unless allowed by
-    name (tools-python/piper-data/train.py found that the class alone is not
-    enough on recent Python).
+    name (https://github.com/snepssen/tools-core/blob/main/piper-workflows/train.py
+    found that the class alone is not enough on recent Python).
   - The val_mos checkpoint callback crashes Lightning 2.6 when no MOS
     predictor is loaded (also found in the old wrapper); it is dropped, and
     --model.mos_metric none is passed so none is loaded.
