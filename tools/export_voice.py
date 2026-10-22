@@ -24,7 +24,7 @@ length_scale (voice_pace.py): pass it when speaking that language.
 """
 # SPDX-License-Identifier: GPL-3.0-only
 # The scripted sequence-mask/path implementation is adapted from
-# OHF-voice/piper1-gpl (commit b2758261878e4d832acb208e33915df8954ae2d4).
+# https://github.com/OHF-Voice/piper1-gpl/tree/cb59d2dcc74602a24d02d235092c62f9d4a19c84
 
 import json
 import pathlib
