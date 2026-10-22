@@ -1,7 +1,7 @@
 # voice-polyglot
 
 Teaching one small Piper voice to speak eight languages, so
-[translate-core](https://github.com/snepssen/translate-core) can voice every
+[interpreter-forge](https://github.com/snepssen/interpreter-forge) can voice every
 language it translates into with the same voice, rendered in milliseconds.
 
 The voice is `snepssen` — the narrator from the Suno-generated English corpus,

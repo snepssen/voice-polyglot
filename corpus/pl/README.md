@@ -16,7 +16,7 @@ Every Polish spelling is covered, and the rarest — `dż` (7), `dź` (11) and
 hard `dz` (36) — are rare in the language too. `tools/corpus_check.py corpus/pl pl`
 re-measures sizes and sound counts after any edit.
 
-Batch 4 is deliberately not meditation. translate-core will voice ordinary
+Batch 4 is deliberately not meditation. The Interpreter will voice ordinary
 conversation, so the voice needs to have read some, in the same calm delivery.
 
 ## Style prompt (580 characters)
