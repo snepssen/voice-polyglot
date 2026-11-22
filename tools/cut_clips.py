@@ -292,7 +292,8 @@ def repair(a, env, cuts, groups, lines, scored, check, keep) -> int:
 def main(lang, script_dir, asr_dir, stems_dir, out_dir) -> None:
     from parakeet_mlx import from_pretrained
     from huggingface_hub import snapshot_download
-    model = from_pretrained(snapshot_download("mlx-community/parakeet-tdt-0.6b-v3", local_files_only=True))
+    model = from_pretrained(snapshot_download("mlx-community/parakeet-tdt-0.6b-v3",
+                                         revision="ed2b7e8c15f9aaa0b5772e2efb986255eaef7e15", local_files_only=True))
 
     out = Path(out_dir)
     (out / "clips").mkdir(parents=True, exist_ok=True)

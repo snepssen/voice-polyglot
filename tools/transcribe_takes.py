@@ -18,12 +18,13 @@ from pathlib import Path
 from parakeet_mlx import from_pretrained
 
 MODEL = "mlx-community/parakeet-tdt-0.6b-v3"
+REVISION = "ed2b7e8c15f9aaa0b5772e2efb986255eaef7e15"  # pinned Hugging Face commit
 
 
 def local_model() -> str:
     # The hub client hangs on this machine; use the snapshot already on disk.
     from huggingface_hub import snapshot_download
-    return snapshot_download(MODEL, local_files_only=True)
+    return snapshot_download(MODEL, revision=REVISION, local_files_only=True)
 
 
 def main(takes: str, out: str) -> None:
